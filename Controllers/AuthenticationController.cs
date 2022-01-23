@@ -26,7 +26,7 @@ namespace TarefasKanBan.Controllers
         public IActionResult Login(LoginRequest loginRequest)   //Recebe E-mail e Senha
         {
             //var user = new User{Email = loginRequest.Email, Password = loginRequest.Password}; => Aqui teríamos o usuário Disponível
-            var user = _tarefasContext.Users.FirstOrDefault(u => u.EMail == loginRequest.EMail && u.Password == loginRequest.Password); //Checa E-Mail e Senha e Retorna o Usuário
+            var user = _tarefasContext.Users.FirstOrDefault(u => u.EMail == loginRequest.EMail /*&& u.Password == loginRequest.Password*/); //Checa E-Mail e Senha e Retorna o Usuário
 
             if (user is null || !BCrypt.Net.BCrypt.Verify(loginRequest.Password, user.Password))
             {
@@ -47,7 +47,7 @@ namespace TarefasKanBan.Controllers
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimTypes.Name, user.Name),
-                    new Claim(ClaimTypes.NameIdentifier, user.Password),
+                    //new Claim(ClaimTypes.NameIdentifier, user.Password),
                     new Claim(ClaimTypes.Email, user.EMail),
                     new Claim(ClaimTypes.Role, user.Role)
                 }),

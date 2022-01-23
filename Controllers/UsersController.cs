@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
-using Aula6.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TarefasKanBan.Data;
 using TarefasKanBan.Models;
+using TarefasKanBan.Services;
 
 namespace TarefasKanBan.Controllers
 {
@@ -24,7 +26,7 @@ namespace TarefasKanBan.Controllers
         
         [HttpPost]
         public IActionResult RegisterUser([FromBody] User user)
-        {
+        {            
             if(!ModelState.IsValid){return BadRequest(ModelState);}
             bool alreadyExists = ((_tarefasContext.Users.Find(user.Id) != null) 
                 || (_tarefasContext.Users.FirstOrDefault(u => u.Login == user.Login) != null)
@@ -33,26 +35,24 @@ namespace TarefasKanBan.Controllers
             {
                 ModelState.AddModelError("Status", "Usuário já Cadastrado!");
                 return BadRequest(ModelState);
-            } 
-            user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
-            _tarefasContext.Users.Add(user);
-            _tarefasContext.SaveChanges();
-            return Ok(user);
+            }
+
+            return Ok(_usersServices.RegisterUser(user));
         }
 
         [HttpGet]
         public IActionResult GetUsers()
         {
             if(_tarefasContext.Users.ToList().Count() == 0) {return Ok("Ainda NÃO há Usuários Cadastrados!");}
-            return Ok(_tarefasContext.Users.ToList());
+
+            return Ok(_usersServices.GetUsers());
         }
 
         [HttpGet("id/{id}")]
         public IActionResult GetUserById(int id)
         {
-            var userModel = _tarefasContext.Users.Find(id);
-            if(userModel is null) {return BadRequest("Usuário NÃO Cadastrado!");}
-            return Ok(_tarefasContext.Users.Find(id));
+            if(_usersServices.GetUserById(id) is null) {return BadRequest("Usuário NÃO Cadastrado!");}
+            return Ok(_usersServices.GetUserById(id));
         }
 
         [HttpGet("search")]
@@ -69,33 +69,15 @@ namespace TarefasKanBan.Controllers
         public IActionResult UpdateUser([FromBody] User user)
         {
             if(!ModelState.IsValid) {return BadRequest(ModelState);}
-            var userModel = _tarefasContext.Users.Find(user.Id);
-            if(userModel is null) {return BadRequest("Usuário NÃO Cadastrado!");}
-            userModel.Login = user.Login;
-            userModel.Name = user.Name;
-            userModel.EMail = user.EMail;
-            userModel.CPF = user.CPF;
-            userModel.Phone = user.Phone;
-            userModel.Birthday = user.Birthday;
-            userModel.Role = user.Role;
-            //_tarefasContext.Update(user);
-            _tarefasContext.SaveChanges();
-            return Ok(userModel);
+            if(_usersServices.UpdateUser(user) is null) {return BadRequest("Usuário NÃO Cadastrado!");}
+            return Ok(_usersServices.UpdateUser(user));
         }
 
         [HttpDelete]
         public IActionResult DeleteUser(int id)
         {
-            var userModel = _tarefasContext.Users.Find(id);
-            if(userModel is null) {return Ok(BadRequest("Usuário NÃO Cadastrado!"));}
-            _tarefasContext.Users.Remove(userModel);
-            _tarefasContext.SaveChanges();
-            return Ok(userModel);
-
-            // var userModel = GetUserById(id);
-            // _tarefasContext.Users.Remove(userModel);
-            // _tarefasContext.SaveChanges();
-            // return userModel;
+            if(_usersServices.DeleteUser(id) is null) {return Ok(BadRequest("Usuário NÃO Cadastrado!"));}
+            return Ok(_usersServices.DeleteUser(id));
         }
     }
 }

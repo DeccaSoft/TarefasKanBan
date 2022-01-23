@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Aula6.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -17,6 +16,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using TarefasKanBan.Data;
+using TarefasKanBan.Services;
 
 namespace TarefasKanBan
 {
@@ -75,6 +75,7 @@ namespace TarefasKanBan
             });
 
             services.AddScoped<UsersServices>();
+            services.AddScoped<TasksServices>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -8,6 +8,7 @@ namespace TarefasKanBan.Models
     {
         public int Id { get; set; }
         [Required(ErrorMessage = "Informe o Nome da Tarefa")]
+        public int UserId { get; set; }
         public string Name { get; set; }
         [MaxLength(250, ErrorMessage = "Tamanho Máximo de 250 Caracteres")]
         public string Description { get; set; }
@@ -18,5 +19,6 @@ namespace TarefasKanBan.Models
         public DateTime? FinalizationDate { get; set; } = null;
         public DateTime? CancellationDate { get; set; } = null;
         public bool Reopened { get; set; } = false;
+        //public User User { get; set; }
     }
 }

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using TarefasKanBan.Data;
 using TarefasKanBan.Models;
 using TarefasKanBan.Models.Enums;
+using TarefasKanBan.Services;
 
 namespace TarefasKanBan.Controllers
 {
@@ -15,9 +16,11 @@ namespace TarefasKanBan.Controllers
     public class TarefasController : ControllerBase
     {
         private readonly TarefasContext _tarefasContext;
-        public TarefasController(TarefasContext tarefasContext)
+        private readonly TasksServices _tasksServices;
+        public TarefasController(TarefasContext tarefasContext, TasksServices tasksServices)
         {
             _tarefasContext = tarefasContext;
+            _tasksServices = tasksServices;
         }
         
         [HttpPost]
@@ -43,37 +46,38 @@ namespace TarefasKanBan.Controllers
                 ModelState.AddModelError("Status", "Tarefa já Cadastrada!");
                 return BadRequest(ModelState);
             } 
-            _tarefasContext.Tarefas.Add(tarefa);
-            _tarefasContext.SaveChanges();
-            return Ok(tarefa);
+
+            return Ok(_tasksServices.CreateTask(tarefa));
         }
 
         [HttpGet]
         public IActionResult GetTasks()
         {
-            if(_tarefasContext.Tarefas.ToList().Count() == 0) {return Ok("Ainda NÃO há Tarefas Cadastradas!");}
-            return Ok(_tarefasContext.Tarefas.ToList());
+            if(_tasksServices.GetTasks().Count() == 0) {return Ok("Ainda NÃO há Tarefas Cadastradas!");}
+            return Ok(_tasksServices.GetTasks());
         }
 
         [HttpGet("{id}")]
         public IActionResult GetTaskById(int id)
         {
-            var tarefaModel = _tarefasContext.Tarefas.Find(id);
-            if(tarefaModel is null) {return BadRequest("Tarefa NÃO Cadastrada!");}
-            return Ok(tarefaModel);
+            //var tarefaModel = _tarefasContext.Tarefas.Find(id);
+            if(_tasksServices.GetTaskById(id) is null) {return BadRequest("Tarefa NÃO Cadastrada!");}
+            return Ok(_tasksServices.GetTaskById(id));
         }
 
         [HttpPut]
         public IActionResult UpdateTask([FromBody] Tarefa tarefa)
         {
             if(!ModelState.IsValid) {return BadRequest(ModelState);}
-            var tarefaModel = _tarefasContext.Tarefas.Find(tarefa.Id);
-            if(tarefaModel is null) {return BadRequest("Tarefa NÃO Cadastrada!");}
-            tarefaModel.Name = tarefa.Name;
-            tarefaModel.Description = tarefa.Description;
-            tarefaModel.Priority = tarefa.Priority;
-            _tarefasContext.SaveChanges();
-            return Ok(tarefaModel);
+            if(_tasksServices.UpdateTask(tarefa) is null) {return BadRequest("Tarefa NÃO Cadastrada!");}
+            return Ok(_tasksServices.UpdateTask(tarefa));
+        }
+
+        [HttpDelete]
+        public IActionResult DeleteTask(int id)
+        {
+            if(_tasksServices.DeleteTask(id) is null) {return Ok(BadRequest("Tarefa NÃO Cadastrada!"));}
+            return Ok(_tasksServices.DeleteTask(id));
         }
 
         //Iniciar uma Tarefa
@@ -140,16 +144,6 @@ namespace TarefasKanBan.Controllers
             tarefaModel.FinalizationDate = null;
             tarefaModel.CancellationDate = null;
             _tarefasContext.Update(tarefaModel);
-            _tarefasContext.SaveChanges();
-            return Ok(tarefaModel);
-        }
-
-        [HttpDelete]
-        public IActionResult DeleteTask(int id)
-        {
-            var tarefaModel = _tarefasContext.Tarefas.Find(id);
-            if(tarefaModel is null) {return Ok(BadRequest("Tarefa NÃO Cadastrada!"));}
-            _tarefasContext.Tarefas.Remove(tarefaModel);
             _tarefasContext.SaveChanges();
             return Ok(tarefaModel);
         }
