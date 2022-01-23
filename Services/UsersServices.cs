@@ -18,7 +18,7 @@ namespace Aula6.Services
             //_dbContext.Database.EnsureCreated();
         }
 
-        //Lista usuários que contenham o 'term' em seu Nome, Login ou Email... Paginando a partir do usuário 'offset', listando de 'limit' em 'limit' usuários
+        //Lista usuários que contenham o 'term' em seu Nome, Login, CPF ou Email... Paginando a partir do usuário 'offset', listando de 'limit' em 'limit' usuários
         public List<User> SearchUsers([FromQuery] string searchTerm, int initialRecord, int limitPerPage)
         {
             List<User> users = _tarefasContext.Users.Where(u => u.Name.Contains(searchTerm) || u.Login.Contains(searchTerm) || u.EMail.Contains(searchTerm) || u.CPF.Contains(searchTerm)).Skip(initialRecord).Take(limitPerPage).ToList();

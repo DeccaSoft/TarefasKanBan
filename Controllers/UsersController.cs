@@ -34,6 +34,7 @@ namespace TarefasKanBan.Controllers
                 ModelState.AddModelError("Status", "Usuário já Cadastrado!");
                 return BadRequest(ModelState);
             } 
+            user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
             _tarefasContext.Users.Add(user);
             _tarefasContext.SaveChanges();
             return Ok(user);

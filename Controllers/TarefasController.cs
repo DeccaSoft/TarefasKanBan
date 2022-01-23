@@ -86,6 +86,7 @@ namespace TarefasKanBan.Controllers
             if(tarefaModel.Status == Status.Finished) {return BadRequest("Não se pode Iniciar uma Tarefa Já Finalizada, mas você pode Reabri-la...");}
             if(tarefaModel.Status == Status.Canceled) {return BadRequest("Não se pode Iniciar uma Tarefa Cancelada!");}
             tarefaModel.Status = Status.Initiated;
+            tarefaModel.IniciationDate = DateTime.Now;
             _tarefasContext.Update(tarefaModel);
             _tarefasContext.SaveChanges();
             return Ok(tarefaModel);
@@ -101,6 +102,7 @@ namespace TarefasKanBan.Controllers
             if(tarefaModel.Status == Status.Created) {return BadRequest("Não se pode Finalizar uma Tarefa ainda não Iniciada, mas você pode Cancela-la...");}
             if(tarefaModel.Status == Status.Canceled) {return BadRequest("Não se pode Finalizar uma Tarefa Cancelada!");}
             tarefaModel.Status = Status.Finished;
+            tarefaModel.FinalizationDate = DateTime.Now;
             _tarefasContext.Update(tarefaModel);
             _tarefasContext.SaveChanges();
             return Ok(tarefaModel);
@@ -115,6 +117,7 @@ namespace TarefasKanBan.Controllers
             if(tarefaModel.Status == Status.Canceled) {return BadRequest("Tarefa Já Cancelada!");}
             if(tarefaModel.Status == Status.Finished) {return BadRequest("Não se pode Cancelar uma Tarefa Já Finalizada, mas você pode Raebri-la...");}
             tarefaModel.Status = Status.Canceled;
+            tarefaModel.CancellationDate = DateTime.Now;
             _tarefasContext.Update(tarefaModel);
             _tarefasContext.SaveChanges();
             return Ok(tarefaModel);
@@ -133,6 +136,9 @@ namespace TarefasKanBan.Controllers
             }
             tarefaModel.Status = Status.Initiated;
             tarefaModel.Reopened = true;
+            tarefaModel.IniciationDate = DateTime.Now;
+            tarefaModel.FinalizationDate = null;
+            tarefaModel.CancellationDate = null;
             _tarefasContext.Update(tarefaModel);
             _tarefasContext.SaveChanges();
             return Ok(tarefaModel);
